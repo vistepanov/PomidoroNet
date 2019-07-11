@@ -41,11 +41,12 @@
             this.trayIcon.Icon = ((System.Drawing.Icon)(resources.GetObject("trayIcon.Icon")));
             this.trayIcon.Text = "PonidoroNet";
             this.trayIcon.Visible = true;
+            this.trayIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(this.TrayIcon_MouseClick);
             this.trayIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.TrayIcon_MouseDoubleClick);
             // 
             // startTimer
             // 
-            this.startTimer.Location = new System.Drawing.Point(127, 75);
+            this.startTimer.Location = new System.Drawing.Point(127, 12);
             this.startTimer.Name = "startTimer";
             this.startTimer.Size = new System.Drawing.Size(104, 44);
             this.startTimer.TabIndex = 0;
@@ -57,7 +58,7 @@
             // 
             this.timerValue.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.timerValue.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.timerValue.Location = new System.Drawing.Point(12, 100);
+            this.timerValue.Location = new System.Drawing.Point(12, 37);
             this.timerValue.MaxLength = 7;
             this.timerValue.Name = "timerValue";
             this.timerValue.Size = new System.Drawing.Size(100, 19);

@@ -7,11 +7,13 @@ namespace PomidoroNet
     {
         private int _interval;
         private bool _timerOn;
+        private bool _showBalloon;
 
         public PomidoroMainForm()
         {
             InitializeComponent();
             _timerOn = false;
+            _showBalloon = false;
             _interval = 25 * 60;
 
             timer1.Tick += new EventHandler(TimerEventProcessor);
@@ -38,14 +40,34 @@ namespace PomidoroNet
             if (_timerOn)
             {
                 _timerOn = false;
-                Text = "Start";
+                startTimer.Text = "Start";
             }
             else
             {
+                var initialTimer = ParseTime(timerValue.Text);
                 _timerOn = true;
-                Text = "Stop";
+                startTimer.Text = "Stop";
                 WindowState = FormWindowState.Minimized;
             }
+        }
+
+        private int ParseTime(string timerValueText)
+        {
+            var timeArray = timerValueText.Split(':');
+            var min = 0;
+            var sec = 0;
+
+            if (timeArray.Length == 0) return 0;
+            if (timeArray.Length == 1)
+            {
+                int.TryParse(timeArray[0], out min);
+            } else if (timeArray.Length == 2)
+            {
+                int.TryParse(timeArray[0], out min);
+                int.TryParse(timeArray[1], out sec);
+            }
+
+            return min * 60 + sec;
         }
 
         private void TimerEventProcessor(Object myObject, EventArgs myEventArgs)
@@ -54,21 +76,32 @@ namespace PomidoroNet
             _interval--;
             timerValue.Text = GetTime();
             trayIcon.BalloonTipText = GetTime();
-            trayIcon.ShowBalloonTip(1);
-            if (_interval <= 0) _timerOn = false;
+            if (_showBalloon)
+                trayIcon.ShowBalloonTip(1);
+            if (_interval <= 0)
+            {
+                _timerOn = false;
+                WindowState = FormWindowState.Normal;
+            }
         }
 
         private string GetTime()
         {
             var min = _interval / 60;
             var sec = _interval % 60;
-            return min + " : " + sec;
+            var text = min + " : " + ((sec < 10) ? "0" : "") + sec;
+            return text;
         }
 
         private void TimerValue_TextChanged(object sender, EventArgs e)
         {
 //            int.TryParse(Text, out var value);
 //            Text = value.ToString();
+        }
+
+        private void TrayIcon_MouseClick(object sender, MouseEventArgs e)
+        {
+            _showBalloon = !_showBalloon;
         }
     }
 }
