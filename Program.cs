@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace PomidoroNet
 {
+    /***
+     * ICO FROM https://icon-icons.com/icon/vegetables-tomato-food/1313 by License CC Atribution(https://creativecommons.org/licenses/by/4.0/)
+     */
     static class Program
     {
         /// <summary>
@@ -16,7 +16,7 @@ namespace PomidoroNet
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Application.Run(new PomidoroMainForm());
         }
     }
 }
