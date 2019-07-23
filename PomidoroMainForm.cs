@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
+using PomidoroNet.Properties;
 
 namespace PomidoroNet
 {
@@ -8,24 +10,23 @@ namespace PomidoroNet
         private int _interval;
         private bool _timerOn;
         private bool _showBalloon;
+        private readonly Icon _pomidoroIcon;
+        private readonly MyTimer _mt;
 
         public PomidoroMainForm()
         {
             InitializeComponent();
+            _mt= new MyTimer();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PomidoroMainForm));
+            _pomidoroIcon = ((System.Drawing.Icon)(resources.GetObject("trayIcon.Icon")));
+
             _timerOn = false;
             _showBalloon = false;
             _interval = 25 * 60;
 
-            timer1.Tick += new EventHandler(TimerEventProcessor);
-            timer1.Interval = 1000;
-            timer1.Start();
-        }
-
-        private void TrayIcon_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            if (WindowState != FormWindowState.Minimized) return;
-            WindowState = FormWindowState.Normal;
-            Visible = true;
+            _mt.Tick += TimerEventProcessor;
+            _mt.Interval = 1000;
+            _mt.Start();
         }
 
         private void PomidoroMainForm_Resize(object sender, EventArgs e)
@@ -34,19 +35,32 @@ namespace PomidoroNet
             trayIcon.Visible = true;
             Visible = false;
         }
+        private void TrayIcon_MouseClick(object sender, MouseEventArgs e)
+        {
+            _showBalloon = !_showBalloon;
+        }
+        private void TrayIcon_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            Visible = true;
+            _showBalloon = false;
+            WindowState = FormWindowState.Normal;
+            BringToFront();
+            CenterToScreen();
+        }
 
         private void StartTimer_Click(object sender, EventArgs e)
         {
             if (_timerOn)
             {
                 _timerOn = false;
-                startTimer.Text = "Start";
+                ButtonStartTimer.Text = Resources.btn_Timer_Start;//btn_Timer_Stop
             }
             else
             {
                 var initialTimer = ParseTime(timerValue.Text);
+                _interval = initialTimer;
                 _timerOn = true;
-                startTimer.Text = "Stop";
+                ButtonStartTimer.Text = Resources.btn_Timer_Stop;//btn_Timer_Stop
                 WindowState = FormWindowState.Minimized;
             }
         }
@@ -74,15 +88,22 @@ namespace PomidoroNet
         {
             if (!_timerOn) return;
             _interval--;
-            timerValue.Text = GetTime();
+            var time = GetTime();
+
             trayIcon.BalloonTipText = GetTime();
             if (_showBalloon)
-                trayIcon.ShowBalloonTip(1);
-            if (_interval <= 0)
             {
-                _timerOn = false;
-                WindowState = FormWindowState.Normal;
+                trayIcon.Icon = _pomidoroIcon;
+                timerValue.Text = time;
+                trayIcon.ShowBalloonTip(1);
             }
+            else
+            {
+                CreateTextIcon(time);
+            }
+            if (_interval > 0) return;
+            TrayIcon_MouseDoubleClick(null,null);
+            ButtonStartTimer.PerformClick();
         }
 
         private string GetTime()
@@ -93,15 +114,41 @@ namespace PomidoroNet
             return text;
         }
 
-        private void TimerValue_TextChanged(object sender, EventArgs e)
+        private void ButtonT25_Click(object sender, EventArgs e)
         {
-//            int.TryParse(Text, out var value);
-//            Text = value.ToString();
+            StartTimer(25);
         }
 
-        private void TrayIcon_MouseClick(object sender, MouseEventArgs e)
+
+        private void ButtonT10_Click(object sender, EventArgs e)
         {
-            _showBalloon = !_showBalloon;
+            StartTimer(10);
+        }
+
+        private void ButtonT5_Click(object sender, EventArgs e)
+        {
+            StartTimer(5);
+        }
+        private void StartTimer(int n)
+        {
+            _interval = n * 60;
+            timerValue.Text = GetTime();
+            ButtonStartTimer.PerformClick();
+        }
+
+        private void CreateTextIcon(string str)
+        {
+            var fontToUse = new Font("Microsoft Sans Serif", 16, FontStyle.Regular, GraphicsUnit.Pixel);
+            var brushToUse = new SolidBrush(Color.White);
+            var bitmapText = new Bitmap(16, 16);
+            Graphics g = System.Drawing.Graphics.FromImage(bitmapText);
+
+            g.Clear(Color.Transparent);
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixelGridFit;
+            g.DrawString(str, fontToUse, brushToUse, -4, -2);
+            IntPtr hIcon = (bitmapText.GetHicon());
+            trayIcon.Icon = System.Drawing.Icon.FromHandle(hIcon);
+            //DestroyIcon(hIcon.ToInt32);
         }
     }
 }
