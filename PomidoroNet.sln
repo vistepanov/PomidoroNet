@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29025.244
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PomidoroNet", "PomidoroNet.csproj", "{A5C78AFF-B8ED-4437-A1A1-4AE4045DC018}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PomidoroNet", "PomidoroNet\PomidoroNet.csproj", "{A5C78AFF-B8ED-4437-A1A1-4AE4045DC018}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LyncStatus", "Lync\LyncStatus.csproj", "{C51F7518-684D-4BD3-AA9E-0948CB8673BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{A5C78AFF-B8ED-4437-A1A1-4AE4045DC018}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A5C78AFF-B8ED-4437-A1A1-4AE4045DC018}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A5C78AFF-B8ED-4437-A1A1-4AE4045DC018}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C51F7518-684D-4BD3-AA9E-0948CB8673BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C51F7518-684D-4BD3-AA9E-0948CB8673BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C51F7518-684D-4BD3-AA9E-0948CB8673BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C51F7518-684D-4BD3-AA9E-0948CB8673BC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
