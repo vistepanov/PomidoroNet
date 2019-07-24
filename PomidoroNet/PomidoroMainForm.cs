@@ -34,6 +34,7 @@ namespace PomidoroNet
 
         private void Stop()
         {
+            ButtonStartTimer.Text = Resources.btn_Timer_Start; //btn_Timer_Stop
             _mt.StopTimer();
             SetDefaultIcon();
             SetStatus(MessengerStatus.Free);
@@ -41,8 +42,10 @@ namespace PomidoroNet
 
         private void Start()
         {
+            ButtonStartTimer.Text = Resources.btn_Timer_Stop; //btn_Timer_Stop
             _mt.StartTimer(ParseTime(timerValue.Text));
             SetStatus(MessengerStatus.DoNotDisturb);
+            WindowState = FormWindowState.Minimized;
         }
 
         private void SetStatus(MessengerStatus status)
@@ -94,7 +97,7 @@ namespace PomidoroNet
 
             if (_mt.RemainTimer > 0) return;
             TrayIcon_MouseDoubleClick(null, null);
-            ButtonStartTimer.PerformClick();
+            Stop();
         }
 
         private void SetDefaultIcon()
@@ -114,7 +117,7 @@ namespace PomidoroNet
         {
             _mt.RemainTimer = n * 60;
             timerValue.Text = GetTime();
-            ButtonStartTimer.PerformClick();
+            Start();
         }
 
         private Icon CreateTextIcon( int minutes, int second)
@@ -152,6 +155,7 @@ namespace PomidoroNet
         private void TrayIcon_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             _showBalloon = false;
+            Visible = true;
             WindowState = FormWindowState.Normal;
             CenterToScreen();
             BringToFront();
@@ -162,12 +166,9 @@ namespace PomidoroNet
             if (_mt.Enabled)
             {
                 Stop();
-                ButtonStartTimer.Text = Resources.btn_Timer_Start; //btn_Timer_Stop
             }
             else
             {
-                ButtonStartTimer.Text = Resources.btn_Timer_Stop; //btn_Timer_Stop
-                WindowState = FormWindowState.Minimized;
                 Start();
             }
         }
