@@ -36,6 +36,7 @@
             this.buttonT25 = new System.Windows.Forms.Button();
             this.buttonT10 = new System.Windows.Forms.Button();
             this.buttonT5 = new System.Windows.Forms.Button();
+            this.ButtonAbout = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // trayIcon
@@ -48,9 +49,9 @@
             // 
             // ButtonStartTimer
             // 
-            this.ButtonStartTimer.Location = new System.Drawing.Point(127, 12);
+            this.ButtonStartTimer.Location = new System.Drawing.Point(146, 37);
             this.ButtonStartTimer.Name = "ButtonStartTimer";
-            this.ButtonStartTimer.Size = new System.Drawing.Size(104, 44);
+            this.ButtonStartTimer.Size = new System.Drawing.Size(85, 28);
             this.ButtonStartTimer.TabIndex = 0;
             this.ButtonStartTimer.Text = "Start";
             this.ButtonStartTimer.UseVisualStyleBackColor = true;
@@ -60,7 +61,7 @@
             // 
             this.timerValue.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.timerValue.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.timerValue.Location = new System.Drawing.Point(12, 37);
+            this.timerValue.Location = new System.Drawing.Point(40, 40);
             this.timerValue.MaxLength = 7;
             this.timerValue.Name = "timerValue";
             this.timerValue.Size = new System.Drawing.Size(100, 19);
@@ -99,12 +100,23 @@
             this.buttonT5.UseVisualStyleBackColor = true;
             this.buttonT5.Click += new System.EventHandler(this.ButtonT5_Click);
             // 
+            // ButtonAbout
+            // 
+            this.ButtonAbout.Location = new System.Drawing.Point(176, 71);
+            this.ButtonAbout.Name = "ButtonAbout";
+            this.ButtonAbout.Size = new System.Drawing.Size(55, 26);
+            this.ButtonAbout.TabIndex = 5;
+            this.ButtonAbout.Text = "?";
+            this.ButtonAbout.UseVisualStyleBackColor = true;
+            this.ButtonAbout.Click += new System.EventHandler(this.ButtonAbout_Click);
+            // 
             // PomidoroMainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.ClientSize = new System.Drawing.Size(243, 140);
+            this.Controls.Add(this.ButtonAbout);
             this.Controls.Add(this.buttonT5);
             this.Controls.Add(this.buttonT10);
             this.Controls.Add(this.buttonT25);
@@ -132,6 +144,7 @@
         private System.Windows.Forms.Button buttonT25;
         private System.Windows.Forms.Button buttonT10;
         private System.Windows.Forms.Button buttonT5;
+        private System.Windows.Forms.Button ButtonAbout;
     }
 }
 

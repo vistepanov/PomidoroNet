@@ -16,7 +16,8 @@ namespace PomidoroNet
         public PomidoroMainForm()
         {
             InitializeComponent();
-            _mt= new MyTimer();
+            _mt= new MyTimer(TimerEventProcessor);
+
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PomidoroMainForm));
             _pomidoroIcon = ((System.Drawing.Icon)(resources.GetObject("trayIcon.Icon")));
 
@@ -24,9 +25,9 @@ namespace PomidoroNet
             _showBalloon = false;
             _interval = 25 * 60;
 
-            _mt.Tick += TimerEventProcessor;
-            _mt.Interval = 1000;
-            _mt.Start();
+//            _mt.Tick += TimerEventProcessor;
+//            _mt.Interval = 1000;
+//            _mt.Start();
         }
 
         private void PomidoroMainForm_Resize(object sender, EventArgs e)
@@ -88,22 +89,27 @@ namespace PomidoroNet
         {
             if (!_timerOn) return;
             _interval--;
-            var time = GetTime();
 
             trayIcon.BalloonTipText = GetTime();
             if (_showBalloon)
             {
-                trayIcon.Icon = _pomidoroIcon;
-                timerValue.Text = time;
+                SetDefaultIcon();
+                timerValue.Text = GetTime();
                 trayIcon.ShowBalloonTip(1);
             }
             else
             {
-                CreateTextIcon(time);
+                CreateTextIcon();
             }
             if (_interval > 0) return;
+            SetDefaultIcon();
             TrayIcon_MouseDoubleClick(null,null);
             ButtonStartTimer.PerformClick();
+        }
+
+        private void SetDefaultIcon()
+        {
+            trayIcon.Icon = _pomidoroIcon;
         }
 
         private string GetTime()
@@ -136,19 +142,43 @@ namespace PomidoroNet
             ButtonStartTimer.PerformClick();
         }
 
-        private void CreateTextIcon(string str)
+        private void CreateTextIcon()
         {
+            // based on https://stackoverflow.com/questions/36379547/writing-text-to-the-system-tray-instead-of-an-icon/
+            var str = (_interval / 60).ToString();
             var fontToUse = new Font("Microsoft Sans Serif", 16, FontStyle.Regular, GraphicsUnit.Pixel);
             var brushToUse = new SolidBrush(Color.White);
+            var brushToFill = new SolidBrush(Color.Green);
             var bitmapText = new Bitmap(16, 16);
             Graphics g = System.Drawing.Graphics.FromImage(bitmapText);
 
             g.Clear(Color.Transparent);
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixelGridFit;
+            var p = (_interval % 60) * 10 / 35;
+            g.FillRectangle(brushToFill, 0, 16-p, 16, p);
             g.DrawString(str, fontToUse, brushToUse, -4, -2);
             IntPtr hIcon = (bitmapText.GetHicon());
             trayIcon.Icon = System.Drawing.Icon.FromHandle(hIcon);
             //DestroyIcon(hIcon.ToInt32);
+        }
+
+        private void ButtonAbout_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show(@"PomidoroNet Copyright (C) 2019 Vladimir Stepanov(vladimir@stepanov.it)
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.", 
+                "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }
