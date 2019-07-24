@@ -7,7 +7,7 @@ namespace LyncStatus
 {
     public class Lync13Status:IMessengerStatus
     {
-        private LyncClient _lyncClient;
+        private readonly LyncClient _lyncClient;
         public Lync13Status()
         {
             _lyncClient = OpenClient();
@@ -32,6 +32,11 @@ namespace LyncStatus
             {
                 //do nothing
             }
+        }
+
+        public void SetText(string msg)
+        {
+            throw new NotImplementedException();
         }
 
         private static object GetLinqStatus(MessengerStatus status)

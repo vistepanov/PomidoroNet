@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PomidoroNet", "PomidoroNet\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LyncStatus", "Lync\LyncStatus.csproj", "{C51F7518-684D-4BD3-AA9E-0948CB8673BC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PomidoroInterfaces", "PomidoroInterfaces\PomidoroInterfaces.csproj", "{0D08F817-671F-4B9A-9E5C-B5ECEBCBD844}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{C51F7518-684D-4BD3-AA9E-0948CB8673BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C51F7518-684D-4BD3-AA9E-0948CB8673BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C51F7518-684D-4BD3-AA9E-0948CB8673BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D08F817-671F-4B9A-9E5C-B5ECEBCBD844}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D08F817-671F-4B9A-9E5C-B5ECEBCBD844}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D08F817-671F-4B9A-9E5C-B5ECEBCBD844}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D08F817-671F-4B9A-9E5C-B5ECEBCBD844}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

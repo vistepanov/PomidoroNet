@@ -47,7 +47,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IStatus.cs" />
     <Compile Include="MyTimer.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -92,6 +91,16 @@
     <Content Include="License.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Lync\LyncStatus.csproj">
+      <Project>{c51f7518-684d-4bd3-aa9e-0948cb8673bc}</Project>
+      <Name>LyncStatus</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PomidoroInterfaces\PomidoroInterfaces.csproj">
+      <Project>{0d08f817-671f-4b9a-9e5c-b5ecebcbd844}</Project>
+      <Name>PomidoroInterfaces</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

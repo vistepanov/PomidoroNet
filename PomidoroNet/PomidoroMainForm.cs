@@ -1,85 +1,64 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using LyncStatus;
 using PomidoroNet.Properties;
 
 namespace PomidoroNet
 {
     public partial class PomidoroMainForm : Form
     {
-        private int _interval;
-        private bool _timerOn;
         private bool _showBalloon;
         private readonly Icon _pomidoroIcon;
         private readonly MyTimer _mt;
+        private List<IMessengerStatus> _messengers;
 
         public PomidoroMainForm()
         {
             InitializeComponent();
-            _mt= new MyTimer(TimerEventProcessor);
-
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(PomidoroMainForm));
-            _pomidoroIcon = ((System.Drawing.Icon)(resources.GetObject("trayIcon.Icon")));
-
-            _timerOn = false;
             _showBalloon = false;
-            _interval = 25 * 60;
+            var resources = new System.ComponentModel.ComponentResourceManager(typeof(PomidoroMainForm));
+            _pomidoroIcon = (Icon) resources.GetObject("trayIcon.Icon");
 
-//            _mt.Tick += TimerEventProcessor;
-//            _mt.Interval = 1000;
-//            _mt.Start();
-        }
-
-        private void PomidoroMainForm_Resize(object sender, EventArgs e)
-        {
-            if (WindowState != FormWindowState.Minimized) return;
-            trayIcon.Visible = true;
-            Visible = false;
-        }
-        private void TrayIcon_MouseClick(object sender, MouseEventArgs e)
-        {
-            _showBalloon = !_showBalloon;
-        }
-        private void TrayIcon_MouseDoubleClick(object sender, MouseEventArgs e)
-        {
-            Visible = true;
-            _showBalloon = false;
-            WindowState = FormWindowState.Normal;
-            BringToFront();
-            CenterToScreen();
+            _mt = new MyTimer(TimerEventProcessor);
+            _messengers = FindPlugin();
         }
 
-        private void StartTimer_Click(object sender, EventArgs e)
+        private List<IMessengerStatus> FindPlugin()
         {
-            if (_timerOn)
-            {
-                _timerOn = false;
-                ButtonStartTimer.Text = Resources.btn_Timer_Start;//btn_Timer_Stop
-            }
-            else
-            {
-                var initialTimer = ParseTime(timerValue.Text);
-                _interval = initialTimer;
-                _timerOn = true;
-                ButtonStartTimer.Text = Resources.btn_Timer_Stop;//btn_Timer_Stop
-                WindowState = FormWindowState.Minimized;
-            }
+            var list = new List<IMessengerStatus> {new Lync13Status()};
+            return list;
         }
 
-        private int ParseTime(string timerValueText)
+
+        private void Stop()
+        {
+            _mt.Enabled = false;
+        }
+
+        private void Start()
+        {
+            _mt.StartTimer(ParseTime(timerValue.Text));
+        }
+
+        private static int ParseTime(string timerValueText)
         {
             var timeArray = timerValueText.Split(':');
-            var min = 0;
+            int min;
             var sec = 0;
 
-            if (timeArray.Length == 0) return 0;
-            if (timeArray.Length == 1)
+            switch (timeArray.Length)
             {
-                int.TryParse(timeArray[0], out min);
-            } else if (timeArray.Length == 2)
-            {
-                int.TryParse(timeArray[0], out min);
-                int.TryParse(timeArray[1], out sec);
+                case 1:
+                    int.TryParse(timeArray[0], out min);
+                    break;
+                case 2:
+                    int.TryParse(timeArray[0], out min);
+                    int.TryParse(timeArray[1], out sec);
+                    break;
+                default:
+                    return 0;
             }
 
             return min * 60 + sec;
@@ -87,8 +66,8 @@ namespace PomidoroNet
 
         private void TimerEventProcessor(Object myObject, EventArgs myEventArgs)
         {
-            if (!_timerOn) return;
-            _interval--;
+            if (!_mt.Enabled) return;
+            _mt.RemainTimer--;
 
             trayIcon.BalloonTipText = GetTime();
             if (_showBalloon)
@@ -101,9 +80,10 @@ namespace PomidoroNet
             {
                 CreateTextIcon();
             }
-            if (_interval > 0) return;
+
+            if (_mt.RemainTimer > 0) return;
             SetDefaultIcon();
-            TrayIcon_MouseDoubleClick(null,null);
+            TrayIcon_MouseDoubleClick(null, null);
             ButtonStartTimer.PerformClick();
         }
 
@@ -114,10 +94,72 @@ namespace PomidoroNet
 
         private string GetTime()
         {
-            var min = _interval / 60;
-            var sec = _interval % 60;
+            var min = _mt.RemainTimer / 60;
+            var sec = _mt.RemainTimer % 60;
             var text = min + " : " + ((sec < 10) ? "0" : "") + sec;
             return text;
+        }
+
+        private void StartTimer(int n)
+        {
+            _mt.RemainTimer = n * 60;
+            timerValue.Text = GetTime();
+            ButtonStartTimer.PerformClick();
+        }
+
+        private void CreateTextIcon()
+        {
+            // based on https://stackoverflow.com/questions/36379547/writing-text-to-the-system-tray-instead-of-an-icon/
+            var str = (_mt.RemainTimer / 60).ToString();
+            var fontToUse = new Font("Microsoft Sans Serif", 16, FontStyle.Regular, GraphicsUnit.Pixel);
+            var brushToUse = new SolidBrush(Color.White);
+            var brushToFill = new SolidBrush(Color.Green);
+            var bitmapText = new Bitmap(16, 16);
+            Graphics g = Graphics.FromImage(bitmapText);
+
+            g.Clear(Color.Transparent);
+            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixelGridFit;
+            var p = (_mt.RemainTimer % 60) * 10 / 35;
+            g.FillRectangle(brushToFill, 0, 16 - p, 16, p);
+            g.DrawString(str, fontToUse, brushToUse, -4, -2);
+            IntPtr hIcon = (bitmapText.GetHicon());
+            trayIcon.Icon = Icon.FromHandle(hIcon);
+            //DestroyIcon(hIcon.ToInt32);
+        }
+
+        #region Form Events
+
+        private void PomidoroMainForm_Resize(object sender, EventArgs e)
+        {
+            Visible = (WindowState != FormWindowState.Minimized);
+        }
+
+        private void TrayIcon_MouseClick(object sender, MouseEventArgs e)
+        {
+            _showBalloon = !_showBalloon;
+        }
+
+        private void TrayIcon_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            _showBalloon = false;
+            WindowState = FormWindowState.Normal;
+            CenterToScreen();
+            BringToFront();
+        }
+
+        private void StartTimer_Click(object sender, EventArgs e)
+        {
+            if (_mt.Enabled)
+            {
+                Stop();
+                ButtonStartTimer.Text = Resources.btn_Timer_Start; //btn_Timer_Stop
+            }
+            else
+            {
+                ButtonStartTimer.Text = Resources.btn_Timer_Stop; //btn_Timer_Stop
+                WindowState = FormWindowState.Minimized;
+                Start();
+            }
         }
 
         private void ButtonT25_Click(object sender, EventArgs e)
@@ -135,50 +177,14 @@ namespace PomidoroNet
         {
             StartTimer(5);
         }
-        private void StartTimer(int n)
-        {
-            _interval = n * 60;
-            timerValue.Text = GetTime();
-            ButtonStartTimer.PerformClick();
-        }
-
-        private void CreateTextIcon()
-        {
-            // based on https://stackoverflow.com/questions/36379547/writing-text-to-the-system-tray-instead-of-an-icon/
-            var str = (_interval / 60).ToString();
-            var fontToUse = new Font("Microsoft Sans Serif", 16, FontStyle.Regular, GraphicsUnit.Pixel);
-            var brushToUse = new SolidBrush(Color.White);
-            var brushToFill = new SolidBrush(Color.Green);
-            var bitmapText = new Bitmap(16, 16);
-            Graphics g = System.Drawing.Graphics.FromImage(bitmapText);
-
-            g.Clear(Color.Transparent);
-            g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixelGridFit;
-            var p = (_interval % 60) * 10 / 35;
-            g.FillRectangle(brushToFill, 0, 16-p, 16, p);
-            g.DrawString(str, fontToUse, brushToUse, -4, -2);
-            IntPtr hIcon = (bitmapText.GetHicon());
-            trayIcon.Icon = System.Drawing.Icon.FromHandle(hIcon);
-            //DestroyIcon(hIcon.ToInt32);
-        }
 
         private void ButtonAbout_Click(object sender, EventArgs e)
         {
-            MessageBox.Show(@"PomidoroNet Copyright (C) 2019 Vladimir Stepanov(vladimir@stepanov.it)
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.", 
-                "About", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(Resources.AboutText,
+                Resources.AboutHeader, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
+
+        #endregion
+
     }
 }
