@@ -36,12 +36,11 @@ namespace PomidoroNet
             return RemainTimer % 60;
         }
 
-
-        //        public override int Interval
-        //        {
-        //            get => _initial;
-        //            set => _initial = value;
-        //        }
+        public bool ReduceTimer()
+        {
+            RemainTimer--;
+            return RemainTimer > 0;
+        }
         public void StartTimer(int seconds)
         {
             InitialTimer = seconds;

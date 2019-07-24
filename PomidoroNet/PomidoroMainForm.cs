@@ -81,22 +81,23 @@ namespace PomidoroNet
         private void TimerEventProcessor(Object myObject, EventArgs myEventArgs)
         {
             if (!_mt.Enabled) return;
-            _mt.RemainTimer--;
 
             trayIcon.BalloonTipText = GetTime();
+            timerValue.Text = GetTime();
             if (_showBalloon)
             {
                 SetDefaultIcon();
-                timerValue.Text = GetTime();
                 trayIcon.ShowBalloonTip(1);
             }
             else
             {
-                trayIcon.Icon=CreateTextIcon(_mt.Minutes(), _mt.Seconds());
+                trayIcon.Icon = CreateTextIcon(_mt.Minutes(), _mt.Seconds());
             }
 
-            if (_mt.RemainTimer > 0) return;
+            if (_mt.ReduceTimer()) return;
             TrayIcon_MouseDoubleClick(null, null);
+            _mt.RemainTimer = _mt.InitialTimer;
+            timerValue.Text = GetTime();
             Stop();
         }
 
@@ -120,7 +121,7 @@ namespace PomidoroNet
             Start();
         }
 
-        private Icon CreateTextIcon( int minutes, int second)
+        private Icon CreateTextIcon(int minutes, int second)
         {
             // based on https://stackoverflow.com/questions/36379547/writing-text-to-the-system-tray-instead-of-an-icon/
             var str = minutes.ToString();
@@ -137,7 +138,6 @@ namespace PomidoroNet
             g.DrawString(str, fontToUse, brushToUse, -4, -2);
             IntPtr hIcon = (bitmapText.GetHicon());
             return Icon.FromHandle(hIcon);
-
         }
 
         #region Form Events
@@ -196,6 +196,5 @@ namespace PomidoroNet
         }
 
         #endregion
-
     }
 }
