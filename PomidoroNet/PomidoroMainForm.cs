@@ -34,12 +34,23 @@ namespace PomidoroNet
 
         private void Stop()
         {
-            _mt.Enabled = false;
+            _mt.StopTimer();
+            SetDefaultIcon();
+            SetStatus(MessengerStatus.Free);
         }
 
         private void Start()
         {
             _mt.StartTimer(ParseTime(timerValue.Text));
+            SetStatus(MessengerStatus.DoNotDisturb);
+        }
+
+        private void SetStatus(MessengerStatus status)
+        {
+            foreach (IMessengerStatus messenger in _messengers)
+            {
+                messenger.SetStatus(status);
+            }
         }
 
         private static int ParseTime(string timerValueText)
@@ -78,11 +89,10 @@ namespace PomidoroNet
             }
             else
             {
-                CreateTextIcon();
+                trayIcon.Icon=CreateTextIcon(_mt.Minutes(), _mt.Seconds());
             }
 
             if (_mt.RemainTimer > 0) return;
-            SetDefaultIcon();
             TrayIcon_MouseDoubleClick(null, null);
             ButtonStartTimer.PerformClick();
         }
@@ -94,8 +104,8 @@ namespace PomidoroNet
 
         private string GetTime()
         {
-            var min = _mt.RemainTimer / 60;
-            var sec = _mt.RemainTimer % 60;
+            var min = _mt.Minutes();
+            var sec = _mt.Seconds();
             var text = min + " : " + ((sec < 10) ? "0" : "") + sec;
             return text;
         }
@@ -107,10 +117,10 @@ namespace PomidoroNet
             ButtonStartTimer.PerformClick();
         }
 
-        private void CreateTextIcon()
+        private Icon CreateTextIcon( int minutes, int second)
         {
             // based on https://stackoverflow.com/questions/36379547/writing-text-to-the-system-tray-instead-of-an-icon/
-            var str = (_mt.RemainTimer / 60).ToString();
+            var str = minutes.ToString();
             var fontToUse = new Font("Microsoft Sans Serif", 16, FontStyle.Regular, GraphicsUnit.Pixel);
             var brushToUse = new SolidBrush(Color.White);
             var brushToFill = new SolidBrush(Color.Green);
@@ -119,12 +129,12 @@ namespace PomidoroNet
 
             g.Clear(Color.Transparent);
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixelGridFit;
-            var p = (_mt.RemainTimer % 60) * 10 / 35;
+            var p = second * 10 / 35;
             g.FillRectangle(brushToFill, 0, 16 - p, 16, p);
             g.DrawString(str, fontToUse, brushToUse, -4, -2);
             IntPtr hIcon = (bitmapText.GetHicon());
-            trayIcon.Icon = Icon.FromHandle(hIcon);
-            //DestroyIcon(hIcon.ToInt32);
+            return Icon.FromHandle(hIcon);
+
         }
 
         #region Form Events

@@ -27,16 +27,42 @@ namespace PomidoroNet
         public int InitialTimer { get; set; }
         public int RemainTimer { get; set; }
 
-//        public override int Interval
-//        {
-//            get => _initial;
-//            set => _initial = value;
-//        }
+        public int Minutes()
+        {
+            return RemainTimer / 60;
+        }
+        public int Seconds()
+        {
+            return RemainTimer % 60;
+        }
+
+
+        //        public override int Interval
+        //        {
+        //            get => _initial;
+        //            set => _initial = value;
+        //        }
         public void StartTimer(int seconds)
         {
             InitialTimer = seconds;
             RemainTimer = seconds;
             _run = true;
+        }
+
+        public void PauseTimer()
+        {
+            _run = false;
+        }
+        public void ResetTimer()
+        {
+            RemainTimer = InitialTimer;
+            _run = true;
+        }
+
+        public void StopTimer()
+        {
+            RemainTimer = 0;
+            _run = false;
         }
     }
 }
