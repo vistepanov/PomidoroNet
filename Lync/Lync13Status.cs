@@ -24,8 +24,7 @@ namespace LyncStatus
                 };
 
                 //Publish the new availability value
-                _lyncClient.Self.BeginPublishContactInformation(newInformation, PublishContactInformationCallback,
-                    null);
+                _lyncClient.Self.BeginPublishContactInformation(newInformation, PublishContactInformationCallback, null);
 
             }
             catch
@@ -36,7 +35,20 @@ namespace LyncStatus
 
         public void SetText(string msg)
         {
-            throw new NotImplementedException();
+
+            try
+            {
+                var newInformation = new Dictionary<PublishableContactInformationType, object>
+                {
+                    {PublishableContactInformationType.PersonalNote, msg}
+                };
+                _lyncClient.Self.BeginPublishContactInformation(newInformation, PublishContactInformationCallback, null);
+            }
+            catch
+            {
+                //do nothing
+            }
+
         }
 
         private static object GetLinqStatus(MessengerStatus status)
@@ -62,7 +74,14 @@ namespace LyncStatus
         }
         private void PublishContactInformationCallback(IAsyncResult result)
         {
-            _lyncClient.Self.EndPublishContactInformation(result);
+            try
+            {
+                _lyncClient.Self.EndPublishContactInformation(result);
+            }
+            catch 
+            {
+                //do nothing
+            }
         }
 
     }

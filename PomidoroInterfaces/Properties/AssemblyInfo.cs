@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("PomidoroInterfaces")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Hewlett-Packard Company")]
+[assembly: AssemblyCompany("Vladimir Stepanov")]
 [assembly: AssemblyProduct("PomidoroInterfaces")]
-[assembly: AssemblyCopyright("Copyright © Hewlett-Packard Company 2019")]
+[assembly: AssemblyCopyright("Copyright © Vladimir Stepanov 2019")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

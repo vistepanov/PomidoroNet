@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using LyncStatus;
 using PomidoroNet.Properties;
@@ -9,15 +10,21 @@ namespace PomidoroNet
 {
     public partial class PomidoroMainForm : Form
     {
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        static extern bool DestroyIcon(IntPtr handle);
+
         private bool _showBalloon;
         private readonly Icon _pomidoroIcon;
         private readonly MyTimer _mt;
-        private List<IMessengerStatus> _messengers;
+        private readonly List<IMessengerStatus> _messengers;
+        private int _blink;
+        private IntPtr _hIcon;
 
         public PomidoroMainForm()
         {
             InitializeComponent();
             _showBalloon = false;
+            _blink = 0;
             var resources = new System.ComponentModel.ComponentResourceManager(typeof(PomidoroMainForm));
             _pomidoroIcon = (Icon) resources.GetObject("trayIcon.Icon");
 
@@ -55,6 +62,13 @@ namespace PomidoroNet
                 messenger.SetStatus(status);
             }
         }
+        private void SetText(string text)
+        {
+            foreach (IMessengerStatus messenger in _messengers)
+            {
+                messenger.SetText(text);
+            }
+        }
 
         private static int ParseTime(string timerValueText)
         {
@@ -80,10 +94,18 @@ namespace PomidoroNet
 
         private void TimerEventProcessor(Object myObject, EventArgs myEventArgs)
         {
+            if (_blink > 0)
+            {
+                MakeBlink();
+                return;
+            }
+
             if (!_mt.Enabled) return;
 
-            trayIcon.BalloonTipText = GetTime();
-            timerValue.Text = GetTime();
+            var time = GetTime();
+            trayIcon.BalloonTipText = time;
+            timerValue.Text = time;
+            SetText(time);
             if (_showBalloon)
             {
                 SetDefaultIcon();
@@ -91,14 +113,31 @@ namespace PomidoroNet
             }
             else
             {
-                trayIcon.Icon = CreateTextIcon(_mt.Minutes(), _mt.Seconds());
+
+                try
+                {
+                    DestroyIcon(_hIcon);
+                    _hIcon = CreateTextIcon(_mt.Minutes(), _mt.Seconds());
+                    trayIcon.Icon = Icon.FromHandle(_hIcon);
+                }
+                catch
+                {
+                    SetDefaultIcon();
+                }
             }
 
             if (_mt.ReduceTimer()) return;
             TrayIcon_MouseDoubleClick(null, null);
-            _mt.RemainTimer = _mt.InitialTimer;
+            _mt.ResetTimer();
             timerValue.Text = GetTime();
+            _blink = 4;
             Stop();
+        }
+
+        private void MakeBlink()
+        {
+            _blink--;
+            FormBorderStyle = (_blink % 2 == 0) ? FormBorderStyle.Fixed3D : FormBorderStyle.FixedSingle;
         }
 
         private void SetDefaultIcon()
@@ -121,7 +160,7 @@ namespace PomidoroNet
             Start();
         }
 
-        private Icon CreateTextIcon(int minutes, int second)
+        private IntPtr CreateTextIcon(int minutes, int second)
         {
             // based on https://stackoverflow.com/questions/36379547/writing-text-to-the-system-tray-instead-of-an-icon/
             var str = minutes.ToString();
@@ -136,9 +175,17 @@ namespace PomidoroNet
             var p = second * 10 / 35;
             g.FillRectangle(brushToFill, 0, 16 - p, 16, p);
             g.DrawString(str, fontToUse, brushToUse, -4, -2);
-            IntPtr hIcon = (bitmapText.GetHicon());
-            return Icon.FromHandle(hIcon);
+            return bitmapText.GetHicon();
         }
+        private void ShowWindow()
+        {
+            Visible = true;
+            WindowState = FormWindowState.Normal;
+            CenterToScreen();
+            BringToFront();
+            Activate();
+        }
+
 
         #region Form Events
 
@@ -149,16 +196,19 @@ namespace PomidoroNet
 
         private void TrayIcon_MouseClick(object sender, MouseEventArgs e)
         {
+            if (!_mt.Enabled)
+            {
+                _showBalloon = false;
+                ShowWindow();
+                return;
+            }
             _showBalloon = !_showBalloon;
         }
 
         private void TrayIcon_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             _showBalloon = false;
-            Visible = true;
-            WindowState = FormWindowState.Normal;
-            CenterToScreen();
-            BringToFront();
+            ShowWindow();
         }
 
         private void StartTimer_Click(object sender, EventArgs e)

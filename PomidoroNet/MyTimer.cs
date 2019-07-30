@@ -55,7 +55,6 @@ namespace PomidoroNet
         public void ResetTimer()
         {
             RemainTimer = InitialTimer;
-            _run = true;
         }
 
         public void StopTimer()
