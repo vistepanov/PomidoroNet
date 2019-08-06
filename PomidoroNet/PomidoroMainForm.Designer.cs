@@ -130,6 +130,7 @@
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "PomidoroNet";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.PomidoroMainForm_FormClosing);
             this.Resize += new System.EventHandler(this.PomidoroMainForm_Resize);
             this.ResumeLayout(false);
             this.PerformLayout();

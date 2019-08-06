@@ -1,10 +1,11 @@
-﻿using System;
+﻿using LyncStatus;
+using PomidoroInterfaces;
+using PomidoroNet.Properties;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using LyncStatus;
-using PomidoroNet.Properties;
 
 namespace PomidoroNet
 {
@@ -35,6 +36,7 @@ namespace PomidoroNet
         private List<IMessengerStatus> FindPlugin()
         {
             var list = new List<IMessengerStatus> {new Lync13Status()};
+            foreach (IMessengerStatus messenger in list) messenger.GetInitialStatus();
             return list;
         }
 
@@ -44,7 +46,8 @@ namespace PomidoroNet
             ButtonStartTimer.Text = Resources.btn_Timer_Start; //btn_Timer_Stop
             _mt.StopTimer();
             SetDefaultIcon();
-            SetStatus(MessengerStatus.Free);
+
+            RestoreStatus();
         }
 
         private void Start()
@@ -55,6 +58,10 @@ namespace PomidoroNet
             WindowState = FormWindowState.Minimized;
         }
 
+        private void RestoreStatus()
+        {
+            foreach (IMessengerStatus messenger in _messengers) messenger.RestoreInitialStatus();
+        }
         private void SetStatus(MessengerStatus status)
         {
             foreach (IMessengerStatus messenger in _messengers)
@@ -245,6 +252,11 @@ namespace PomidoroNet
                 Resources.AboutHeader, MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
+
+        private void PomidoroMainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+
+        }
         #endregion
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace PomidoroNet
+﻿namespace PomidoroInterfaces
 {
     public enum MessengerStatus
     {
