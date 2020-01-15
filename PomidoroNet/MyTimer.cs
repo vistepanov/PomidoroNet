@@ -8,10 +8,10 @@ namespace PomidoroNet
 
         public MyTimer(EventHandler e)
         {
-            base.Tick += e;
-            base.Interval = 1000;
+            Tick += e;
+            Interval = 1000;
             base.Enabled = true;
-            base.Start();
+            Start();
             _run = false;
         }
 

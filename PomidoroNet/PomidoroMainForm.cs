@@ -123,7 +123,7 @@ namespace PomidoroNet
 
                 try
                 {
-                    DestroyIcon(_hIcon);
+                    CloseHandle();
                     _hIcon = CreateTextIcon(_mt.Minutes(), _mt.Seconds());
                     trayIcon.Icon = Icon.FromHandle(_hIcon);
                 }
@@ -193,6 +193,15 @@ namespace PomidoroNet
             Activate();
         }
 
+        private void CloseHandle()
+        {
+            DestroyIcon(_hIcon);
+        }
+
+        ~PomidoroMainForm()
+        {
+            this.CloseHandle();
+        }
 
         #region Form Events
 
